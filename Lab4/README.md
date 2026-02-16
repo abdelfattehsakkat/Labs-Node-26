@@ -700,6 +700,7 @@ In this lab, you learned:
 
 - [Docker Documentation](https://docs.docker.com/)
 - [Dockerfile Best Practices](https://docs.docker.com/develop/develop-images/dockerfile_best-practices/)
+- [geeksforgeeks Docker Tutorial](https://www.geeksforgeeks.org/devops/introduction-to-docker/)
 - [Node.js Docker Best Practices](https://github.com/nodejs/docker-node/blob/main/docs/BestPractices.md)
 - [TypeScript Documentation](https://www.typescriptlang.org/)
 - [Express.js Documentation](https://expressjs.com/)
