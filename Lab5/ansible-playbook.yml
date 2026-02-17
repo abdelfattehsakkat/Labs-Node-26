@@ -1,0 +1,115 @@
+---
+- name: Ansible Playbook Demonstration
+  hosts: localhost
+  connection: local
+  gather_facts: yes
+  
+  vars:
+    demo_dir: /tmp/ansible-demo
+    app_name: "Ansible Demo App"
+    version: "1.0.0"
+    environments:
+      - dev
+      - staging
+      - prod
+    
+  tasks:
+    - name: Display welcome message
+      debug:
+        msg: "Welcome to {{ app_name }} version {{ version }}"
+    
+    - name: Show system information
+      debug:
+        msg: "Running on {{ ansible_distribution }} {{ ansible_distribution_version }}"
+    
+    - name: Create demo directory
+      file:
+        path: "{{ demo_dir }}"
+        state: directory
+        mode: '0755'
+    
+    - name: Create environment subdirectories
+      file:
+        path: "{{ demo_dir }}/{{ item }}"
+        state: directory
+        mode: '0755'
+      loop: "{{ environments }}"
+    
+    - name: Create a configuration file
+      copy:
+        content: |
+          # {{ app_name }} Configuration
+          # Generated on {{ ansible_date_time.iso8601 }}
+          
+          APP_NAME={{ app_name }}
+          VERSION={{ version }}
+          ENVIRONMENT=production
+          LOG_LEVEL=info
+        dest: "{{ demo_dir }}/config.env"
+        mode: '0644'
+    
+    - name: Create environment-specific files
+      copy:
+        content: |
+          Environment: {{ item }}
+          Created: {{ ansible_date_time.iso8601 }}
+          Host: {{ ansible_hostname }}
+        dest: "{{ demo_dir }}/{{ item }}/info.txt"
+        mode: '0644'
+      loop: "{{ environments }}"
+    
+    - name: Create a sample JSON file
+      copy:
+        content: |
+          {
+            "app": "{{ app_name }}",
+            "version": "{{ version }}",
+            "timestamp": "{{ ansible_date_time.iso8601 }}",
+            "host": "{{ ansible_hostname }}",
+            "environments": {{ environments | to_json }}
+          }
+        dest: "{{ demo_dir }}/manifest.json"
+        mode: '0644'
+    
+    - name: Check if demo directory exists
+      stat:
+        path: "{{ demo_dir }}"
+      register: dir_status
+    
+    - name: Display directory status
+      debug:
+        msg: "Demo directory exists: {{ dir_status.stat.exists }}"
+    
+    - name: List created files
+      find:
+        paths: "{{ demo_dir }}"
+        recurse: yes
+      register: created_files
+    
+    - name: Show all created files
+      debug:
+        msg: "Created {{ created_files.matched }} files in {{ demo_dir }}"
+    
+    - name: Display file paths
+      debug:
+        msg: "{{ item.path }}"
+      loop: "{{ created_files.files }}"
+      loop_control:
+        label: "{{ item.path }}"
+    
+    - name: Create a marker file with timestamp
+      copy:
+        content: "Playbook executed at {{ ansible_date_time.iso8601 }}"
+        dest: "{{ demo_dir }}/last_run.txt"
+        mode: '0644'
+    
+    - name: Final summary
+      debug:
+        msg:
+          - "==================================="
+          - "Ansible Playbook Demo Complete!"
+          - "==================================="
+          - "Demo directory: {{ demo_dir }}"
+          - "Environments: {{ environments | join(', ') }}"
+          - "Total files created: {{ created_files.matched }}"
+          - "Check {{ demo_dir }} for results"

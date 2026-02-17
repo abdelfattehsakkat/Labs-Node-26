@@ -1,0 +1,70 @@
+# Ansible Inventory File - YAML Format
+# Alternative to INI format with more structure
+
+all:
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+    environment: demo
+    region: us-east
+  
+  children:
+    # Local host group
+    local:
+      hosts:
+        localhost:
+          ansible_connection: local
+    
+    # Web servers group
+    webservers:
+      hosts:
+        web1:
+          ansible_connection: local
+          demo_role: frontend
+          demo_port: 8080
+        web2:
+          ansible_connection: local
+          demo_role: frontend
+          demo_port: 8081
+      vars:
+        http_port: 80
+        max_connections: 100
+        server_type: nginx
+    
+    # Database servers group
+    databases:
+      hosts:
+        db1:
+          ansible_connection: local
+          demo_role: database
+          demo_port: 5432
+        db2:
+          ansible_connection: local
+          demo_role: database
+          demo_port: 5433
+      vars:
+        db_engine: postgresql
+        max_connections: 200
+        backup_enabled: true
+    
+    # Application servers group
+    appservers:
+      hosts:
+        app1:
+          ansible_connection: local
+          demo_role: backend
+          demo_port: 3000
+        app2:
+          ansible_connection: local
+          demo_role: backend
+          demo_port: 3001
+      vars:
+        framework: express
+        runtime: nodejs
+        version: 20
+    
+    # Production group (group of groups)
+    production:
+      children:
+        webservers:
+        databases:
+        appservers:

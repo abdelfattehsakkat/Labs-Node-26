@@ -1,0 +1,35 @@
+---
+# Playbook 1: Run tasks on all webservers
+- name: Configure Web Servers
+  hosts: webservers
+  gather_facts: no
+  
+  tasks:
+    - name: Display web server information
+      debug:
+        msg:
+          - "Configuring {{ inventory_hostname }}"
+          - "Role: {{ demo_role }}"
+          - "Port: {{ demo_port }}"
+          - "Server Type: {{ server_type }}"
+          - "HTTP Port: {{ http_port }}"
+          - "Max Connections: {{ max_connections }}"
+    
+    - name: Create web server directory
+      file:
+        path: "/tmp/ansible-inventory-demo/{{ inventory_hostname }}"
+        state: directory
+        mode: '0755'
+    
+    - name: Create web server config file
+      copy:
+        content: |
+          # {{ inventory_hostname }} Configuration
+          SERVER_TYPE={{ server_type }}
+          HTTP_PORT={{ http_port }}
+          DEMO_PORT={{ demo_port }}
+          MAX_CONNECTIONS={{ max_connections }}
+          ENVIRONMENT={{ environment }}
+          REGION={{ region }}
+        dest: "/tmp/ansible-inventory-demo/{{ inventory_hostname }}/config.env"
+        mode: '0644'
